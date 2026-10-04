@@ -24,3 +24,94 @@ footer{padding:40px 4% 24px;color:#eee;background:#151518}
 .footer-bottom>div{display:flex;gap:24px}
 .footer-bottom>.brand{font-size:18px}
 @media(max-width:700px){footer{padding:28px 5% 24px}.footer-top{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:12px;padding-bottom:24px}.footer-copy h2{font-size:clamp(27px,7.4vw,48px);margin-bottom:18px}.footer-copy .button{font-size:14px;padding:14px 12px;gap:0;white-space:nowrap}.footer-cat{max-width:230px}.contract{padding:18px 0}.contract-row{gap:14px;align-items:center}.contract-row button{padding:12px;font-size:13px}.footer-bottom{flex-wrap:wrap;gap:18px;font-size:12px}.footer-bottom>div{gap:18px}.footer-bottom>span{flex-basis:100%}}
+
+/* The poster moves immediately; the 3D scene continues the same energy. */
+.masthead>.hero-word{font-size:1em;color:inherit;padding:0;vertical-align:baseline;letter-spacing:inherit;animation:hero-word-in .8s cubic-bezier(.2,1.3,.3,1) both}
+.masthead>.hero-punctuation{animation:hero-punctuation-in .75s .15s cubic-bezier(.2,1.5,.3,1) both;transform-origin:50% 85%}
+.poster img{animation:poster-play 3.4s ease-in-out infinite}
+.model-ready .renderer{animation:renderer-enter .7s cubic-bezier(.2,1.2,.3,1) both}
+.hero-copy>p:last-child{font-size:15px}.hero-actions p{font-size:13px}
+@keyframes hero-word-in{from{opacity:0;transform:translateY(55px) rotate(-5deg)}to{opacity:1;transform:none}}
+@keyframes hero-punctuation-in{0%{opacity:0;transform:scale(.4) rotate(-15deg)}65%{opacity:1;transform:scale(1.16) rotate(4deg)}100%{transform:none}}
+@keyframes poster-play{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-24px) rotate(4deg)}}
+@keyframes renderer-enter{from{opacity:1;transform:translateY(42px) scale(.96)}to{opacity:1;transform:none}}
+@media(max-width:700px){.hero-copy .eyebrow{font-size:10px}.hero-copy>p:last-child{font-size:13px}.hero-actions p{font-size:12px}.hero-actions .button{font-size:12px}.scroll-cue{font-size:12px}}
+
+/* Separate wrappers keep scroll, entrance and ambient transforms independent. */
+.motion-section:not(.is-active) *,body.motion-paused .motion-section *{animation-play-state:paused!important}
+.model-ready .poster img{animation-play-state:paused!important}
+.reaction-burst{position:absolute;left:52%;top:46%;width:0;height:0;z-index:8;pointer-events:none}
+.reaction-burst span{position:absolute;display:block;color:#e93733;font-family:Display;font-size:44px;line-height:1;opacity:0;text-shadow:1px 2px #151518}
+.reaction-burst span:nth-child(even){color:#ffd126}
+.renderer:focus-visible{outline:3px dashed #e93733;outline-offset:-8px}
+.world{height:calc(min(100svh,78vw) + 50svh)}
+.city-frame{height:min(100svh,78vw);min-height:0;isolation:isolate;--mx:0;--my:0}
+.city-camera{position:absolute;inset:-2%;transform:translate3d(calc(var(--mx)*-16px),calc(var(--my)*-10px),0);transition:transform .5s ease-out}
+.city-orbit{position:absolute;inset:0;animation:city-drift 11s ease-in-out infinite}
+.city-image{transform:scale(calc(1.075 - var(--p)*.04)) translateY(calc(15px - var(--p)*30px))}
+.city-sky{position:absolute;inset:0 0 43%;overflow:hidden;pointer-events:none}
+.beam{position:absolute;left:8%;bottom:-74%;width:53%;height:160%;transform-origin:50% 100%;background:linear-gradient(0deg,#e6efff00,#d8e8ff32);clip-path:polygon(48% 100%,2% 0,98% 0);animation:searchlight 8s ease-in-out infinite alternate}
+.beam-two{left:40%;bottom:-84%;animation-duration:11s;animation-delay:-5s;opacity:.65}
+.beam-three{left:59%;bottom:-80%;width:40%;animation-duration:9s;animation-delay:-3s;opacity:.6}
+.meteor{position:absolute;width:140px;height:2px;left:75%;top:14%;background:linear-gradient(90deg,transparent,#dceeff);border-radius:50%;animation:meteor 8s linear infinite}
+.sky-sparks i{position:absolute;left:28%;top:76%;width:3px;height:3px;background:#ffd126;border-radius:50%;animation:sky-spark 3.6s ease-out infinite}
+.sky-sparks i:nth-child(2){left:42%;top:84%;animation-delay:-1s}.sky-sparks i:nth-child(3){left:60%;top:66%;animation-delay:-2.4s}.sky-sparks i:nth-child(4){left:75%;top:85%;animation-delay:-1.8s}.sky-sparks i:nth-child(5){left:88%;top:70%;animation-delay:-.6s}.sky-sparks i:nth-child(6){left:14%;top:57%;animation-delay:-2.8s}
+.city-flash{position:absolute;inset:0;opacity:0;background:#fff3c4;pointer-events:none;z-index:3}
+.city-shade{pointer-events:none;background:linear-gradient(180deg,#06071466,transparent 43%,#08090aa8)}
+.scene-action{position:absolute;top:7%;right:4%;z-index:4;display:flex;align-items:center;gap:14px;border:1px solid #ffffff55;border-radius:50px;padding:12px 18px;background:#10131cab;color:#fff;font-size:14px;transition:background .2s,transform .2s}
+.scene-action:hover,.city-frame.is-reacting .scene-action{background:#ffd126;color:#151518;transform:rotate(-2deg)}
+.city-frame.is-reacting .beam{animation-duration:1.2s}
+.city-note .text-link{font-size:14px}
+.world.is-seen .city-title{animation:scene-title-in .7s ease-out both}
+.friend-line{display:block;transform-origin:0 100%}.friend-title h2 .friend-line:first-child{color:#151518}
+.friends.is-seen .friend-line{animation:friend-line-in .85s cubic-bezier(.2,1.15,.3,1) both}
+.friends.is-seen .friend-line:last-child{animation-delay:.12s}
+.friend-art{transform:translateY(calc(55px - var(--p)*85px)) rotate(calc(4deg - var(--p)*7deg))}
+.friend-toy{display:block;position:relative;width:100%;height:100%;padding:0;border:0;background:none;cursor:pointer}
+.friend-float{width:100%;height:100%;transform-origin:50% 82%;animation:duo-sway 3.6s ease-in-out infinite}
+.friend-toy img{display:block}
+.friend-toy:hover .friend-float{animation-duration:2.3s}
+.friend-disc{background:conic-gradient(from 0deg,#e3ddcc 0deg 55deg,#e937331c 55deg 70deg,#e3ddcc 70deg 180deg,#ffd12699 180deg 202deg,#e3ddcc 202deg 360deg);border:2px solid #15151818;animation:disc-spin 22s linear infinite}
+.friend-disc::after{content:"";position:absolute;inset:7%;border:2px dashed #15151820;border-radius:50%}
+.friend-ribbon{width:145%;padding:17px 0;overflow:hidden}
+.ribbon-track{display:flex;width:max-content;animation:ribbon-run 16s linear infinite}
+.ribbon-track span{flex-shrink:0;padding-right:24px}
+.friend-copy .play{background:#e93733;color:#fff;margin:0 12px 16px 0}
+.friend-copy>.button.dark{font-size:13px;margin-bottom:16px}
+.friend-art .reaction-burst{left:50%;top:48%}
+.footer-character{position:relative;display:block;width:100%;max-width:300px;justify-self:end;padding:0;border:0;background:none;transform:translateY(calc(20px - var(--p)*30px)) rotate(calc(3deg - var(--p)*5deg));cursor:pointer}
+.footer-float{width:100%;animation:footer-bob 3.2s ease-in-out infinite;transition:scale .3s}
+.footer-cat{max-width:none;pointer-events:none}
+.is-perked .footer-float{scale:1.05}
+footer.is-seen .footer-copy h2{animation:friend-line-in .7s cubic-bezier(.2,1.15,.3,1) both}
+.footer-character .reaction-burst{left:50%;top:40%}
+@keyframes city-drift{0%,100%{transform:translate3d(-7px,4px,0)}50%{transform:translate3d(7px,-4px,0)}}
+@keyframes searchlight{from{transform:rotate(-18deg)}to{transform:rotate(18deg)}}
+@keyframes meteor{0%,72%{opacity:0;transform:rotate(-35deg) translateX(0)}75%{opacity:.8}90%,100%{opacity:0;transform:rotate(-35deg) translateX(-440px)}}
+@keyframes sky-spark{0%{opacity:0;transform:translate(0,0) scale(.4)}25%{opacity:.7}100%{opacity:0;transform:translate(-12px,-42px) scale(1)}}
+@keyframes scene-title-in{from{opacity:0;transform:translateY(25px)}to{opacity:1;transform:translateY(calc(var(--p)*-20px))}}
+@keyframes friend-line-in{from{opacity:0;transform:translateY(35px) rotate(3deg)}to{opacity:1;transform:none}}
+@keyframes duo-sway{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-18px) rotate(2deg)}}
+@keyframes disc-spin{to{transform:rotate(360deg)}}
+@keyframes ribbon-run{to{transform:translateX(-50%)}}
+@keyframes footer-bob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-12px) rotate(3deg)}}
+@media(max-width:700px){
+ .world{height:auto}.city-frame{height:105vw;max-height:640px;position:relative}
+ .city-image{object-position:37% 50%;transform:scale(calc(1.04 - var(--p)*.015)) translateY(calc(4px - var(--p)*8px))}
+ .scene-action{right:5%;top:5%;font-size:12px;padding:11px 13px;gap:8px}.city-title{top:7%}
+ .city-title h2{font-size:13px;letter-spacing:.03em}.city-note{bottom:6%}.city-note .text-link{font-size:13px}
+ .reaction-burst span{font-size:30px}.friend-copy .button{padding:17px 20px}
+ .footer-character{max-width:230px}.friend-art{transform:translateY(calc(20px - var(--p)*35px)) rotate(calc(3deg - var(--p)*5deg))}
+ .friend-title .eyebrow{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){
+ .world{height:auto}.city-frame{position:relative}.city-camera,.city-orbit,.city-image,.friend-art,.friend-float,.footer-character,.footer-float,.ribbon-track,.city-title{transform:none!important}
+ .beam,.meteor,.sky-sparks,.reaction-burst{display:none}.footer-float{scale:1}
+ .scene-action:hover,.city-frame.is-reacting .scene-action{transform:none}
+}
+
+/* Clip scene art without creating a scrollable inner viewport. */
+.studio,.city-frame,.friends{overflow:clip}
+.city-sky{bottom:59%}
+.city-sky{mask-image:linear-gradient(180deg,#000 0%,#000 55%,transparent 100%)}
+.beam{clip-path:none;background:conic-gradient(from -12deg at 50% 100%,transparent 0deg,#d8e8ff08 3deg,#d8e8ff24 11deg,#d8e8ff08 21deg,transparent 24deg,transparent 360deg);mask-image:linear-gradient(0deg,transparent,#000 35%,#000 80%,transparent);opacity:.75}
