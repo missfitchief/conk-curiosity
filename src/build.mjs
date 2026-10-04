@@ -1,0 +1,12 @@
+import {build} from 'esbuild';
+import {readFile,writeFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+const hash=bytes=>createHash('sha256').update(bytes).digest('hex').slice(0,10);
+await build({entryPoints:['src/scene.js'],bundle:true,minify:true,format:'esm',target:'es2022',outfile:'dist/scene.js',legalComments:'eof'});
+const sceneHash=hash(await readFile('dist/scene.js'));
+const app=(await readFile('src/app.js','utf8')).replace('scene-version',sceneHash);
+await build({stdin:{contents:app,sourcefile:'src/app.js',resolveDir:'src',loader:'js'},bundle:false,minify:true,format:'iife',target:'es2022',outfile:'dist/app.js'});
+let html=await readFile('dist/index.html','utf8');
+for(const name of ['styles.css','app.js'])html=html.replace(new RegExp(name.replace('.','\\.')+'\\?v=[a-z0-9]+','g'),name+'?v='+hash(await readFile('dist/'+name)));
+await writeFile('dist/index.html',html);
+console.log('Built character scenes and content-versioned runtime.');

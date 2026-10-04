@@ -169,3 +169,47 @@ footer.is-seen .footer-copy h2{animation:none;transform:translate3d(calc((1 - va
  .friend-line,.friend-title h2,.friend-disc,.friend-ribbon,.friend-toy,.friend-copy,footer .footer-copy h2{transform:none!important}
  .friend-art,.poster{transform:none!important}.city-sky{display:none}.scroll-cue{opacity:1}
 }
+
+/* Character films and shared skeletal models replace the flat picture loops. */
+.film{position:absolute;inset:0;overflow:hidden}
+.film video,.film-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.film video{display:block;transform:translateZ(0)}
+.film-poster{opacity:1;transition:opacity .3s;pointer-events:none}
+.film-ready .film-poster{opacity:0}
+.city-camera{inset:0;transform:none;transition:none}
+.city-orbit{inset:0;animation:none;transform:none}
+.city-image,.city-video{transform:none;filter:none;object-position:42% 50%}
+.city-sky{display:none}
+.city-shade{background:linear-gradient(180deg,#06071455,transparent 26%,transparent 70%,#08090a77)}
+.world.is-seen .city-title{transform:translateY(calc(var(--push)*-10px))}
+.city-title{z-index:3}.city-note{z-index:3;left:4%;right:auto;text-align:left;bottom:6%}
+.scene-action{top:auto;bottom:5%;right:4%}
+.friends,.friend-stage{background:#ffdc29}
+.friend-cinema{z-index:1}
+.friend-title{z-index:4;top:8%}.friend-title h2{font-size:clamp(62px,6.8vw,112px);margin-top:0}
+.friend-art{inset:5% 0 8% 39%;width:auto;height:auto;transform:none!important;z-index:2}
+.friend-toy{transform:none!important;cursor:pointer}
+.friend-copy{max-width:33%;bottom:7%}
+.friend-copy p{font-size:18px;text-shadow:0 1px 5px #ffdc29}
+.friend-copy .play{margin-right:8px}
+.friend-film-poster{filter:none}
+.footer-character{height:340px;max-width:320px}
+.footer-float{height:100%;position:relative;animation:none;transition:none}
+.footer-cat{height:100%;object-fit:contain;transition:opacity .2s}
+.footer-renderer{position:absolute;inset:0;opacity:0;transition:opacity .2s;pointer-events:none}
+.footer-renderer canvas{display:block;width:100%;height:100%}
+.footer-model-ready .footer-renderer{opacity:1}
+.footer-model-ready .footer-cat{opacity:0;visibility:hidden}
+@media(max-width:700px){
+ .city-video,.city-image{object-position:42% 50%;transform:none}
+ .city-title h2{font-size:24px}.city-note{left:5%;bottom:5%}.scene-action{bottom:4%;right:5%}
+ .friend-title{top:6%}.friend-title h2{font-size:15vw}
+ .friend-cinema{inset:auto;left:-30%;top:27%;width:142%;height:auto;aspect-ratio:16/9;mask-image:linear-gradient(180deg,transparent,#000 3%,#000 97%,transparent)}
+ .friend-cinema video,.friend-cinema .film-poster{object-fit:contain}
+ .friend-art{inset:27% 0 auto 0;height:45%;width:100%}
+ .friend-copy{max-width:90%;bottom:4%}.friend-copy p{font-size:15px}
+ .footer-top{grid-template-columns:1fr;gap:0}
+ .footer-copy h2{font-size:clamp(36px,11.5vw,52px)}
+ .footer-character{height:270px;max-width:320px;justify-self:center;margin-top:-10px}
+}
+@media(prefers-reduced-motion:reduce){.film-ready .film-poster{opacity:1}.film video{visibility:hidden}.friend-cinema{mask-image:none}}

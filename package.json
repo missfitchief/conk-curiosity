@@ -2,7 +2,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "esbuild src/scene.js --bundle --minify --format=esm --target=es2022 --outfile=dist/scene.js --legal-comments=eof"
+    "build": "node src/build.mjs"
   },
   "dependencies": {
     "three": "0.180.0"
