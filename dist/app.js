@@ -1,21 +1,31 @@
 (() => {
  'use strict';
- const $=s=>document.querySelector(s), reduce=matchMedia('(prefers-reduced-motion: reduce)');
+ const $=s=>document.querySelector(s), reduce=matchMedia('(prefers-reduced-motion: reduce)'),phone=matchMedia('(max-width:700px)');
  const opening=$('.opening'),studio=$('.studio'),world=$('.world'),city=$('.city-frame'),friends=$('.friends'),footer=$('footer');
  const sections=[opening,world,friends,footer],animations=new Map(),cooldown=new WeakSet();
  let scene,scheduled=0,metrics,cityPointer=null;
  const clamp=v=>Math.max(0,Math.min(1,v));
- function measure(){metrics={h:innerHeight,opening:opening.offsetHeight,world:world.offsetHeight,city:city.offsetHeight,friends:friends.offsetHeight,footer:footer.offsetHeight};schedule()}
+ const phase=(v,a,b)=>clamp((v-a)/(b-a)),smooth=v=>v*v*(3-2*v);
+ function measure(){metrics={h:innerHeight,opening:opening.offsetHeight,studio:studio.offsetHeight,world:world.offsetHeight,city:city.offsetHeight,friends:friends.offsetHeight,friendStage:$('.friend-stage').offsetHeight,footer:footer.offsetHeight};schedule()}
  function update(){
   scheduled=0;
   // Read all scene geometry before writing transforms.
   const a=opening.getBoundingClientRect(),b=world.getBoundingClientRect(),c=friends.getBoundingClientRect(),d=footer.getBoundingClientRect(),frame=city.getBoundingClientRect();
-  const p=reduce.matches?0:clamp(-a.top/Math.max(1,metrics.opening-metrics.h));
-  const w=reduce.matches?0:clamp((metrics.h-b.top)/Math.max(1,metrics.h+metrics.world));
-  const f=reduce.matches?.5:clamp((metrics.h-c.top)/(metrics.h+metrics.friends));
-  const end=reduce.matches?.5:clamp((metrics.h-d.top)/(metrics.h+metrics.footer));
+  const p=reduce.matches?0:clamp(-a.top/Math.max(1,metrics.opening-metrics.studio));
+  const w=reduce.matches?0:phone.matches?clamp((metrics.h-b.top)/(metrics.h+metrics.world)):clamp(-b.top/Math.max(1,metrics.world-metrics.city));
+  const f=reduce.matches?1:clamp(-c.top/Math.max(1,metrics.friends-metrics.friendStage));
+  const end=reduce.matches?1:smooth(phase((metrics.h-d.top)/Math.min(metrics.h,metrics.footer),.04,.85));
+  const arrive=reduce.matches?1:smooth(clamp((metrics.h-c.top)/metrics.h));
   studio.style.setProperty('--p',p.toFixed(4));studio.dataset.progress=p.toFixed(3);scene?.progress(p);
+  $('.hero-actions').inert=p>.38;$('.scroll-cue').inert=p>.48;
   city.style.setProperty('--p',w.toFixed(4));friends.style.setProperty('--p',f.toFixed(4));footer.style.setProperty('--p',end.toFixed(4));
+  // Each scroll interval has anticipation, travel and a readable landing.
+  const takeoff=phase(f,.3,.68),hop=Math.sin(takeoff*Math.PI),squash=Math.sin(phase(f,.2,.3)*Math.PI)*.15+Math.sin(phase(f,.68,.8)*Math.PI)*.1;
+  const set=(el,key,value)=>el.style.setProperty(key,Number(value).toFixed(4));
+  set(city,'--push',Math.sin(w*Math.PI));set(city,'--streak',Math.sin(phase(w,.2,.65)*Math.PI));
+  set(friends,'--arrive',arrive);set(friends,'--settle',smooth(phase(f,0,.24)));set(friends,'--hop',hop);set(friends,'--squash',squash);set(friends,'--turn',Math.sin(takeoff*Math.PI*2));
+  set(studio,'--landing',smooth(phase(p,.68,.86)));set(studio,'--story',smooth(phase(p,.23,.43)));
+  footer.dataset.progress=end.toFixed(3);city.dataset.progress=w.toFixed(3);friends.dataset.progress=f.toFixed(3);
   const mx=!reduce.matches&&cityPointer?clamp(cityPointer.x/Math.max(1,frame.width))-.5:0;
   const my=!reduce.matches&&cityPointer?clamp((cityPointer.y-frame.top)/Math.max(1,frame.height))-.5:0;
   city.style.setProperty('--mx',mx.toFixed(3));city.style.setProperty('--my',my.toFixed(3));
@@ -55,7 +65,7 @@
   animate($('.footer-float'),[{transform:'translateY(0) rotate(0)'},{transform:'translateY(7px) scale(1.08,.88)',offset:.14},{transform:'translateY(-35px) rotate(-8deg)',offset:.45},{transform:'translateY(0) rotate(3deg)',offset:.8},{transform:'translateY(0) rotate(0)'}],{duration:800,easing:'ease-out'},footer);burst($('.footer-character .reaction-burst'),footer);
  }));
  const community=$('.footer-copy .button');for(const event of['pointerenter','focus'])community.addEventListener(event,()=>footer.classList.add('is-perked'));for(const event of['pointerleave','blur'])community.addEventListener(event,()=>footer.classList.remove('is-perked'));
- const load=()=>import('./scene.js').then(m=>m.initScene($('#renderer'),{reduce:reduce.matches})).then(s=>{scene=s;studio.classList.add('model-ready');$('#renderer').dataset.ready='true';schedule()}).catch(()=>{$('#interaction-hint').textContent='Tap for a little chaos';$('#renderer').style.pointerEvents='none';$('#renderer').removeAttribute('tabindex')});
+ const load=()=>import('./scene.js?v=a9deb0786d').then(m=>m.initScene($('#renderer'),{reduce:reduce.matches})).then(s=>{scene=s;studio.classList.add('model-ready');$('#renderer').dataset.ready='true';schedule()}).catch(()=>{$('#interaction-hint').textContent='Tap for a little chaos';$('#renderer').style.pointerEvents='none';$('#renderer').removeAttribute('tabindex')});
  if('requestIdleCallback'in window)requestIdleCallback(load,{timeout:900});else setTimeout(load,450);
  $('#copy-button').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('#contract-address').textContent);$('#copy-button').textContent='Copied!';$('#copy-status').textContent='Contract address copied.';press($('#copy-button'),footer);setTimeout(()=>$('#copy-button').textContent='Copy address',2000)}catch{const range=document.createRange();range.selectNodeContents($('#contract-address'));getSelection().removeAllRanges();getSelection().addRange(range);$('#copy-status').textContent='Select and copy the contract address.';$('#copy-button').textContent='Select address'}});
 })();

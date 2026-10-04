@@ -115,3 +115,57 @@ footer.is-seen .footer-copy h2{animation:friend-line-in .7s cubic-bezier(.2,1.15
 .city-sky{bottom:59%}
 .city-sky{mask-image:linear-gradient(180deg,#000 0%,#000 55%,transparent 100%)}
 .beam{clip-path:none;background:conic-gradient(from -12deg at 50% 100%,transparent 0deg,#d8e8ff08 3deg,#d8e8ff24 11deg,#d8e8ff08 21deg,transparent 24deg,transparent 360deg);mask-image:linear-gradient(0deg,transparent,#000 35%,#000 80%,transparent);opacity:.75}
+
+/* Reversible scroll choreography: every scene has its own travel and landing. */
+.studio{--story:0;--landing:0}
+.story-words{opacity:var(--story);transform:translate3d(calc((1 - var(--story))*-70px),calc((1 - var(--story))*65px),0) rotate(calc((1 - var(--story))*-5deg));font-size:clamp(50px,7.2vw,122px);top:22%;pointer-events:none}
+.scroll-cue{opacity:calc(1 - var(--p)*2)}
+.hero-actions[inert],.scroll-cue[inert]{pointer-events:none}
+.poster{transform:translate3d(calc(var(--p)*18vw),calc(sin(var(--p)*180deg)*-50px),0) rotate(calc(var(--p)*20deg))}
+.world{height:calc(min(100svh,78vw) + 100svh)}
+.city-frame{--push:0;--streak:0}
+.city-image{transform-origin:40% 62%;transform:translate3d(calc(var(--p)*-2%),calc(var(--push)*-1%),0) scale(calc(1.03 + var(--push)*.09))}
+.city-sky{transform:translate3d(0,calc(var(--p)*-35px),0)}
+.beam{animation:none;transform:rotate(calc(-28deg + var(--p)*68deg));opacity:calc(.65 + var(--push)*.35)}
+.beam-two{transform:rotate(calc(30deg - var(--p)*72deg))}.beam-three{transform:rotate(calc(-8deg + var(--p)*44deg))}
+.meteor{animation:none;opacity:calc(var(--streak)*.9);transform:rotate(-35deg) translateX(calc(var(--p)*-70vw))}
+.world.is-seen .city-title{animation:none;transform:translate3d(calc(var(--p)*32px),calc(var(--push)*-12px),0)}
+.city-title h2{font-family:Display;font-size:clamp(26px,3.8vw,58px);letter-spacing:-.045em;line-height:1}
+.friends{height:200svh;min-height:0;padding:0;overflow:clip;--arrive:1;--settle:1;--hop:0;--turn:0;--squash:0}
+.friend-stage{height:100svh;min-height:620px;position:sticky;top:0;padding:0 4%;overflow:clip;isolation:isolate}
+.friend-title{position:absolute;top:9%;left:4%;z-index:4}
+.friend-title h2{font-size:clamp(62px,8.6vw,140px);margin-top:20px;transform:none}
+.friends.is-seen .friend-line{animation:none}
+.friend-line:first-child{transform:translate3d(calc((1 - var(--arrive))*-22vw + (1 - var(--settle))*-8vw),0,0) rotate(calc((1 - var(--settle))*-6deg))}
+.friend-line:last-child{transform:translate3d(calc((1 - var(--arrive))*24vw + (1 - var(--settle))*12vw),0,0) rotate(calc((1 - var(--settle))*5deg))}
+.friend-art{position:absolute;top:13%;right:-1%;width:65%;height:82%;max-height:none;margin:0;transform-origin:50% 80%;transform:translate3d(calc((1 - var(--settle))*24vw),calc((1 - var(--arrive))*90px + (1 - var(--settle))*55px - var(--hop)*95px),0) rotate(calc((1 - var(--settle))*12deg + var(--turn)*7deg)) scale(calc(.86 + var(--settle)*.14));z-index:3}
+.friend-toy{transform:scale(calc(1 + var(--squash)*.5),calc(1 - var(--squash)))}
+.friend-disc{inset:13% 4% 4%;animation:none;transform:rotate(calc(var(--p)*210deg)) scale(calc(.8 + var(--settle)*.2))}
+.friend-ribbon{top:49%;transform:rotate(calc(-13deg + var(--p)*14deg)) translate3d(calc(var(--p)*-25vw),0,0);width:175%;z-index:1;mask-image:linear-gradient(90deg,transparent 0%,transparent 29%,#000 41%)}
+.ribbon-track{animation:none;transform:translate3d(calc(var(--p)*-360px),0,0)}
+.friend-copy{position:absolute;bottom:7%;left:4%;margin:0;max-width:38%;z-index:5;transform:translate3d(0,calc((1 - var(--arrive))*45px),0)}
+.friend-copy p{font-size:18px;margin-bottom:20px}
+footer{overflow:clip;--p:1}
+footer.is-seen .footer-copy h2{animation:none;transform:translate3d(calc((1 - var(--p))*-65px),0,0)}
+.footer-character{transform:translate3d(calc((1 - var(--p))*60px),calc((1 - var(--p))*95px - sin(var(--p)*180deg)*22px),0) rotate(calc((1 - var(--p))*18deg)) scale(calc(.72 + var(--p)*.28))}
+@media(max-width:700px){
+ .story-words{font-size:12vw;top:6%}
+ .poster{transform:translate3d(calc(var(--p)*8vw),calc(sin(var(--p)*180deg)*-35px),0) rotate(calc(var(--p)*8deg))}
+ .world{height:auto}.city-frame{position:relative;height:105vw;max-height:640px}
+ .city-image{transform:translate3d(calc(var(--p)*-1%),0,0) scale(calc(1.02 + var(--push)*.04));transform-origin:37% 65%}
+ .city-title h2{font-size:24px}.city-title{top:6%}
+ .city-note{bottom:5%;left:5%;right:auto;text-align:left}.scene-action{top:auto;bottom:4%;right:5%}
+ .friends{height:195svh}.friend-stage{min-height:650px}
+ .friend-title{top:6%;left:5%}.friend-title h2{font-size:15vw;margin-top:14px}
+ .friend-art{top:26%;right:-4%;width:108%;height:53%;transform:translate3d(calc((1 - var(--settle))*18vw),calc((1 - var(--arrive))*50px + (1 - var(--settle))*25px - var(--hop)*40px),0) rotate(calc((1 - var(--settle))*8deg + var(--turn)*5deg)) scale(calc(.9 + var(--settle)*.1))}
+ .friend-ribbon{top:47%;font-size:28px;mask-image:none}
+ .friend-copy{left:5%;bottom:4%;max-width:90%;width:90%}.friend-copy p{font-size:15px;line-height:1.5;margin-bottom:12px}
+ .friend-copy .button{font-size:12px;padding:14px 16px;margin-bottom:8px;gap:12px}
+ .footer-character{transform:translate3d(0,calc((1 - var(--p))*65px),0) rotate(calc((1 - var(--p))*15deg)) scale(calc(.8 + var(--p)*.2))}
+}
+@media(prefers-reduced-motion:reduce){
+ .opening{height:100svh}.studio{position:relative}
+ .world,.friends{height:auto}.friend-stage{position:relative}
+ .friend-line,.friend-title h2,.friend-disc,.friend-ribbon,.friend-toy,.friend-copy,footer .footer-copy h2{transform:none!important}
+ .friend-art,.poster{transform:none!important}.city-sky{display:none}.scroll-cue{opacity:1}
+}

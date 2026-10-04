@@ -25,15 +25,18 @@ export async function initScene(host,{reduce=false}={}){
  host.append(renderer.domElement);
  let target=0,p=0,drag=0,targetDrag=0,pointerId=null,startX=0,startDrag=0,kick=-1000,active=true,raf=0,last=0,time=0,mobile=false,dead=false,hoverX=0,hoverY=0,lookX=0,lookY=0;
  const look=new THREE.Vector3(),desired=new THREE.Vector3();
- function resize(){const w=host.clientWidth,h=host.clientHeight;mobile=w<700;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();renderOnce()}
+ const beat=(v,a,b)=>THREE.MathUtils.clamp((v-a)/(b-a),0,1),ease=v=>v*v*(3-2*v);
+ function resize(){const w=host.clientWidth,h=host.clientHeight;mobile=w<=700;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();renderOnce()}
  function draw(dt){p=THREE.MathUtils.damp(p,target,5,dt);drag=THREE.MathUtils.damp(drag,targetDrag,8,dt);lookX=THREE.MathUtils.damp(lookX,hoverX,5,dt);lookY=THREE.MathUtils.damp(lookY,hoverY,5,dt);
   const elapsed=reduce?1000:time-kick,flight=elapsed>=.14&&elapsed<.78?Math.sin((elapsed-.14)/.64*Math.PI):0;
   const anticipation=elapsed>=0&&elapsed<.14?Math.sin(elapsed/.14*Math.PI):0,landing=elapsed>=.78&&elapsed<1.02?Math.sin((elapsed-.78)/.24*Math.PI):0;
-  const bounce=flight*(mobile?.7:1.05),idle=reduce?0:.16*Math.pow(Math.sin(time*1.1),2),squash=.2*anticipation+.16*landing;
-  group.rotation.y=-.16+p*1.25+drag+(reduce?0:Math.sin(time)*.22+lookX*.22+flight*.3);group.rotation.z=reduce?0:Math.sin(time*1.25)*.035-flight*.07;group.rotation.x=reduce?0:lookY*.07;
-  group.position.set((mobile?-.2+p*.1:.35+p*1.3)+(reduce?0:Math.sin(time*.65)*.08),bounce+idle,0);group.scale.set(1+squash*.45,1-squash,1+squash*.45);
-  desired.set(mobile?.2+p*.5:1.3+p*.5,mobile?2.5-p*.2:2.75-p*.3,(mobile?13.2-p*.4:8.5-p*.45)+bounce*.75);camera.position.copy(desired);look.set(mobile?0:p*.2,1.6+bounce*.3,0);camera.lookAt(look);
-  ring.rotation.z=p*.8+(reduce?0:time*.22);ring.rotation.y=reduce?0:Math.sin(time*.6)*.18;ring.rotation.x=.15+(reduce?0:Math.sin(time*.4)*.1);ring.position.x=p*.5;ring.scale.setScalar((1-p*.12)*(1+flight*.1));floor.material.uniforms.opacity.value=.6*(1-p);shadow.position.x=group.position.x;shadow.scale.setScalar(1-bounce*.14);shadow.material.opacity=1-bounce*.55;
+  const leap=reduce?0:Math.sin(beat(p,.28,.7)*Math.PI),windup=reduce?0:Math.sin(beat(p,.16,.28)*Math.PI),touchdown=reduce?0:Math.sin(beat(p,.7,.81)*Math.PI),turn=ease(beat(p,.22,.75));
+  const bounce=flight*(mobile?.7:1.05)+leap*(mobile?.85:1.25),idle=reduce?0:.1*Math.pow(Math.sin(time*1.1),2),squash=.2*anticipation+.16*landing+.21*windup+.17*touchdown;
+  group.rotation.y=-.16+turn*(Math.PI*2+.25)+drag+(reduce?0:Math.sin(time)*.12+lookX*.22+flight*.3);group.rotation.z=reduce?0:Math.sin(time*1.25)*.025-leap*.18-flight*.07;group.rotation.x=reduce?0:lookY*.07-leap*.12;
+  const travel=ease(beat(p,.12,.72));
+  group.position.set((mobile?-.25+travel*.15:.35+travel*1.6)+(reduce?0:Math.sin(time*.65)*.08),bounce+idle,leap*.65);group.scale.set(1+squash*.45,1-squash,1+squash*.45);
+  desired.set(mobile?.2+travel*.25:1.3+travel*.4,mobile?2.5:2.75,(mobile?14:8.5)+bounce*.95+travel*(mobile?.6:.3));camera.position.copy(desired);look.set(mobile?0:travel*.2,1.6+bounce*.35,0);camera.lookAt(look);
+  ring.rotation.z=p*Math.PI*1.6+(reduce?0:time*.12);ring.rotation.y=reduce?0:Math.sin(time*.6)*.08+leap*.65;ring.rotation.x=.15+leap*.45;ring.position.x=travel*(mobile?.6:1.4);ring.scale.setScalar((1-p*.1)*(1+leap*.16+flight*.1));floor.material.uniforms.opacity.value=.6*(1-p);floor.rotation.z=p*.16;shadow.position.x=group.position.x;shadow.scale.setScalar(1-bounce*.12);shadow.material.opacity=Math.max(.12,1-bounce*.5);
   renderer.render(scene,camera);
  }
  function renderOnce(){draw(.016)}
