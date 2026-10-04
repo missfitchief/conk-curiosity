@@ -90,6 +90,11 @@ export async function initFooter(host,{reduce=false}={}){
  const key=new THREE.DirectionalLight(0xffffff,3);key.position.set(-3,6,5);scene.add(key);
  const rim=new THREE.DirectionalLight(0xffd126,3);rim.position.set(4,3,-2);scene.add(rim);
  const model=await character(3.65),pose=rig(model);group.add(model);scene.add(group);host.append(renderer.domElement);
+ const podium=new THREE.Mesh(new THREE.CylinderGeometry(1.9,1.9,.12,64),[new THREE.MeshBasicMaterial({color:0xcba511,toneMapped:false}),new THREE.MeshBasicMaterial({color:0xffd126,toneMapped:false}),new THREE.MeshBasicMaterial({color:0xcba511,toneMapped:false})]);podium.position.y=-.07;scene.add(podium);
+ const shadowCanvas=document.createElement('canvas');shadowCanvas.width=128;shadowCanvas.height=128;
+ const context=shadowCanvas.getContext('2d'),gradient=context.createRadialGradient(64,64,4,64,64,64);
+ gradient.addColorStop(0,'rgba(24,15,0,.45)');gradient.addColorStop(1,'rgba(24,15,0,0)');context.fillStyle=gradient;context.fillRect(0,0,128,128);
+ const shadow=new THREE.Mesh(new THREE.PlaneGeometry(3.2,2.5),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(shadowCanvas),transparent:true,depthWrite:false}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.002;scene.add(shadow);
  let time=0,last=0,raf=0,active=false,dead=false,kick=-100,target=0,p=0,mouseX=0,mouseY=0;
  const motion=matchMedia('(prefers-reduced-motion: reduce)');reduce=motion.matches;
  function draw(dt){
@@ -100,7 +105,8 @@ export async function initFooter(host,{reduce=false}={}){
   pose(time,{reduce,lookX:mouseX,lookY:mouseY,flight:hop,wave});
   group.rotation.set(0,-.25+(reduce?0:Math.sin(time*.6)*.16),reduce?0:Math.sin(time*.8)*.025);
   group.position.set(0,hop*.6,0);group.scale.set(1+crouch*.07,1-crouch*.14,1+crouch*.07);
-  camera.position.set(1.8,2.45+hop*.2,7.8*Math.max(1,.85/camera.aspect)+hop*.9);camera.lookAt(0,1.75+hop*.18,0);
+  shadow.scale.setScalar(1-hop*.15);shadow.material.opacity=1-hop*.45;
+  camera.position.set(.9,3.4+hop*.25,8.8*Math.max(1,.88/camera.aspect)+hop*.7);camera.lookAt(0,1.55+hop*.15,0);
   host.dataset.head=Number(model.getObjectByName('head')?.rotation.y||0).toFixed(3);host.dataset.frame=String(Math.floor(time*30));
   renderer.render(scene,camera);
  }
