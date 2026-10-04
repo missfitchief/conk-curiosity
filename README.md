@@ -17,3 +17,5 @@ Three.js 0.180.0 is bundled locally; its MIT license is included. There are no e
 HTML, CSS and page logic are authored in `dist`. Renderer source is in `src/scene.js`; run `npm ci` and `npm run build` to rebuild its bundle. Hosting configuration is in `.openai/hosting.json`. Local desktop/mobile checks cover scene initialization, scroll progress, character reaction, navigation, address copying and horizontal overflow. Browser logs had no errors during these checks. Total static payload is approximately 2.05 MB; this is not an LCP or frame-rate benchmark.
 
 The rooftop scene appears immediately on entry, without an opaque slogan interstitial. Its shorter desktop camera move and compact mobile framing preserve artwork visibility and show both characters.
+
+The closing footer uses a compact normal-flow grid with the full character beside its community action. It has no fixed-height empty panel, negative character offsets or clipped head.
