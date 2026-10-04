@@ -82,6 +82,7 @@ export async function initScene(host,{reduce=false}={}){
 }
 
 export async function initFooter(host,{reduce=false}={}){
+ const pointerHost=host.closest('.footer-character');
  const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'low-power'});
  renderer.setPixelRatio(Math.min(devicePixelRatio,1.25));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1;
  const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(34,1,.1,30),group=new THREE.Group();
@@ -104,16 +105,20 @@ export async function initFooter(host,{reduce=false}={}){
   renderer.render(scene,camera);
  }
  function frame(now){raf=0;if(!active||document.hidden||dead)return;const dt=Math.max(0,Math.min(.04,(now-last)/1000||.016));last=now;time+=dt;draw(dt);if(!reduce)raf=requestAnimationFrame(frame)}
- function wake(){if(active&&!document.hidden&&!dead&&!raf){last=performance.now();raf=requestAnimationFrame(frame)}}
+ function wake(){
+  const bounds=pointerHost.getBoundingClientRect();
+  active=bounds.width>0&&bounds.height>0&&bounds.bottom>0&&bounds.top<innerHeight&&bounds.right>0&&bounds.left<innerWidth;
+  if(!active||document.hidden||dead){cancelAnimationFrame(raf);raf=0;return}
+  if(!raf){last=performance.now();raf=requestAnimationFrame(frame)}
+ }
  function resize(){renderer.setSize(host.clientWidth,host.clientHeight,false);camera.aspect=host.clientWidth/Math.max(1,host.clientHeight);camera.updateProjectionMatrix();draw(.016);wake()}
- const io=new IntersectionObserver(([entry])=>{active=entry.isIntersecting;if(active)wake();else{cancelAnimationFrame(raf);raf=0}},{threshold:0});io.observe(host);
+ const io=new IntersectionObserver(wake,{threshold:0});io.observe(pointerHost);
  new ResizeObserver(resize).observe(host);
  document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0}else wake()});
  motion.addEventListener('change',e=>{reduce=e.matches;mouseX=mouseY=0;draw(.016);wake()});
- const pointerHost=host.closest('.footer-character');
  pointerHost.addEventListener('pointermove',e=>{if(e.pointerType==='mouse'&&!reduce){const r=host.getBoundingClientRect();mouseX=(e.clientX-r.left)/r.width-.5;mouseY=(e.clientY-r.top)/r.height-.5}});
  pointerHost.addEventListener('pointerleave',()=>{mouseX=mouseY=0});
- renderer.domElement.addEventListener('webglcontextlost',()=>{dead=true;cancelAnimationFrame(raf);host.parentElement.classList.remove('footer-model-ready')});
+ renderer.domElement.addEventListener('webglcontextlost',()=>{dead=true;cancelAnimationFrame(raf);raf=0;host.dataset.ready='false';host.parentElement.classList.remove('footer-model-ready')});
  resize();
  return {nudge(){if(!reduce){kick=time;wake()}},progress(v){target=v;wake()}};
 }
