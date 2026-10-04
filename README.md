@@ -19,3 +19,5 @@ HTML, CSS and page logic are authored in `dist`. Renderer source is in `src/scen
 The rooftop scene appears immediately on entry, without an opaque slogan interstitial. Its shorter desktop camera move and compact mobile framing preserve artwork visibility and show both characters.
 
 The closing footer uses a compact normal-flow grid with the full character beside its community action. It has no fixed-height empty panel, negative character offsets or clipped head.
+
+BONK’s head in the rooftop artwork was turned toward the skyline on October 4, 2026 using one targeted built-in imagegen edit. The original character designs, body poses, placement and scene were retained. The source PNG, exact prompt and provenance remain under `work/conk-art` in the task workspace.
