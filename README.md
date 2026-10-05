@@ -16,7 +16,7 @@ Brand identity, community links and the contract address were checked against ht
 
 ## Runtime and build
 
-The first screen shows its lightweight poster immediately. It progressively loads the Three.js bundle and rig. Videos have no source URL until they approach the viewport, pause offscreen or when hidden, and show a poster until an actual decoded frame is painted. Video and WebGL failures retain posters. The operating system's reduced-motion preference produces static artwork without a motion toggle. There are no external runtime requests.
+The branded startup screen holds the initial reveal until local fonts and images have decoded, both WebGL scenes have painted, and both short films have completely downloaded and decoded their first frame. The shared rig loads once. Videos use local blob URLs, pause offscreen or when hidden, and show a poster until an actual decoded frame is painted. The gate releases immediately when ready, preserves section links and scroll restoration, and locks scrolling and background controls while loading. A 15-second ceiling and error handling keep the page usable on a failed connection; unfinished models are cancelled so they cannot suddenly change the opening later. With JavaScript unavailable the static page remains visible. The operating system's reduced-motion preference skips film downloads and uses static artwork without a motion toggle. There are no external runtime requests.
 
 Hero rendering caps pixel ratio at 1.5; the footer caps it at 1.25. Both render loops pause outside the viewport and when the page is hidden. Scroll layout reads and style writes are batched. Hero keyboard rotation, replay buttons and community links are supported.
 

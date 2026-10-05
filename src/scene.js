@@ -25,7 +25,8 @@ function rig(model){
   ['accentLow','accentMid','accentHigh'].forEach((name,i)=>{const b=bones.get(name);if(b){b.bone.position.copy(b.p);b.bone.position.y+=k*(Math.sin(t*2.8-i*.5)*.018+flight*.03);rotate(name,0,0,k*Math.sin(t*2.8-i*.5)*.07)}});
  };
 }
-export async function initScene(host,{reduce=false}={}){
+export async function initScene(host,{reduce=false,signal}={}){
+ const model=await character(3.65);if(signal?.aborted)throw new DOMException('Startup cancelled','AbortError');
  const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'low-power'});
  renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.95;
  const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(36,1,.1,60);
@@ -33,7 +34,7 @@ export async function initScene(host,{reduce=false}={}){
  const key=new THREE.DirectionalLight(0xfff5dc,2.2);key.position.set(-4,6,5);scene.add(key);
  const rim=new THREE.DirectionalLight(0xffffff,2.4);rim.position.set(4,3,-3);scene.add(rim);
  const group=new THREE.Group();scene.add(group);
- const model=await character(3.65),pose=rig(model);
+ const pose=rig(model);
  reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
  group.add(model);
  // A shallow sculptural ring frames the character without covering its face.
@@ -81,7 +82,8 @@ export async function initScene(host,{reduce=false}={}){
  return {progress(v){target=reduce?0:v;wake()},nudge(){if(!reduce){kick=time;targetDrag+=.32;wake()}}};
 }
 
-export async function initFooter(host,{reduce=false}={}){
+export async function initFooter(host,{reduce=false,signal}={}){
+ const model=await character(3.65);if(signal?.aborted)throw new DOMException('Startup cancelled','AbortError');
  const pointerHost=host.closest('.footer-character');
  const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'low-power'});
  renderer.setPixelRatio(Math.min(devicePixelRatio,1.25));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1;
@@ -89,7 +91,7 @@ export async function initFooter(host,{reduce=false}={}){
  scene.add(new THREE.HemisphereLight(0xfff8df,0x515975,2));
  const key=new THREE.DirectionalLight(0xffffff,3);key.position.set(-3,6,5);scene.add(key);
  const rim=new THREE.DirectionalLight(0xffd126,3);rim.position.set(4,3,-2);scene.add(rim);
- const model=await character(3.65),pose=rig(model);group.add(model);scene.add(group);host.append(renderer.domElement);
+ const pose=rig(model);group.add(model);scene.add(group);host.append(renderer.domElement);
  const podium=new THREE.Mesh(new THREE.CylinderGeometry(1.9,1.9,.12,64),[new THREE.MeshBasicMaterial({color:0xcba511,toneMapped:false}),new THREE.MeshBasicMaterial({color:0xffd126,toneMapped:false}),new THREE.MeshBasicMaterial({color:0xcba511,toneMapped:false})]);podium.position.y=-.07;scene.add(podium);
  const shadowCanvas=document.createElement('canvas');shadowCanvas.width=128;shadowCanvas.height=128;
  const context=shadowCanvas.getContext('2d'),gradient=context.createRadialGradient(64,64,4,64,64,64);

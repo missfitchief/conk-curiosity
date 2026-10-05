@@ -3,7 +3,10 @@
  const $=s=>document.querySelector(s),reduce=matchMedia('(prefers-reduced-motion: reduce)'),phone=matchMedia('(max-width:700px)');
  const opening=$('.opening'),studio=$('.studio'),world=$('.world'),city=$('.city-frame'),friends=$('.friends'),footer=$('footer');
  const sections=[opening,world,friends,footer],animations=new Map(),cooldown=new WeakSet();
- let scene,footerScene,sceneModule,scheduled=0,metrics,cityPointer=null;
+ let scene,footerScene,sceneModule,footerPromise,scheduled=0,metrics,cityPointer=null;
+ const boot=window.conkBoot,assets=new AbortController(),pageParts=[$('.nav'),$('main'),footer,$('.skip')];
+ let bootEnded=boot?.ended??false,completed=0;
+ if(bootEnded)assets.abort();else{pageParts.forEach(el=>el.inert=true);document.body.setAttribute('aria-busy','true')}
  const clamp=v=>Math.max(0,Math.min(1,v)),phase=(v,a,b)=>clamp((v-a)/(b-a)),smooth=v=>v*v*(3-2*v);
  function measure(){metrics={h:innerHeight,opening:opening.offsetHeight,studio:studio.offsetHeight,world:world.offsetHeight,city:city.offsetHeight,friends:friends.offsetHeight,friendStage:$('.friend-stage').offsetHeight,footer:footer.offsetHeight};schedule()}
  function update(){
@@ -30,7 +33,24 @@
  city.addEventListener('pointermove',e=>{if(e.pointerType==='mouse'){cityPointer={x:e.clientX,y:e.clientY};schedule()}});city.addEventListener('pointerleave',()=>{cityPointer=null;schedule()});
  const films=[...document.querySelectorAll('video[data-src]')].map(video=>({video,film:video.closest('.film'),loaded:false,near:false,visible:false,failed:false}));
  function syncFilm(record){const {video}=record;if(reduce.matches||document.hidden||!record.visible){video.pause();return}if(!record.loaded||record.failed)return;video.play().catch(()=>{video.dataset.blocked='true'})}
- function loadFilm(record){if(record.loaded||record.failed||reduce.matches)return;record.loaded=true;record.video.muted=true;record.video.src=record.video.dataset.src;record.video.load();syncFilm(record)}
+ function loadFilm(record){
+  if(record.preparing)return record.preparing;if(record.failed||reduce.matches)return Promise.resolve();
+  record.preparing=(async()=>{
+   // Download the complete short loop once, so scrolling never has to buffer it.
+   const response=await fetch(record.video.dataset.src,{signal:assets.signal});
+   if(!response.ok)throw new Error('Film unavailable');
+   const blob=await response.blob();if(assets.signal.aborted)return;
+   record.objectURL=URL.createObjectURL(blob);record.video.muted=true;record.video.preload='auto';
+   await new Promise((resolve,reject)=>{
+    const done=()=>{cleanup();resolve()},fail=()=>{cleanup();reject(new Error('Film could not decode'))};
+    function cleanup(){record.video.removeEventListener('loadeddata',done);record.video.removeEventListener('error',fail);assets.signal.removeEventListener('abort',fail)}
+    record.video.addEventListener('loadeddata',done,{once:true});record.video.addEventListener('error',fail,{once:true});assets.signal.addEventListener('abort',fail,{once:true});
+    record.video.src=record.objectURL;record.video.load();
+   });
+   record.loaded=true;record.video.dataset.preloaded='true';syncFilm(record);
+  })().catch(()=>{record.failed=true;record.video.pause();record.film.classList.remove('film-ready');if(record.objectURL)URL.revokeObjectURL(record.objectURL)});
+  return record.preparing;
+ }
  const nearFilms=new IntersectionObserver(entries=>{entries.forEach(e=>{const r=films.find(x=>x.video===e.target);r.near=e.isIntersecting;if(r.near)loadFilm(r)})},{rootMargin:'600px 0px',threshold:0});
  const activeFilms=new IntersectionObserver(entries=>{entries.forEach(e=>{const r=films.find(x=>x.video===e.target);r.visible=e.isIntersecting;syncFilm(r)})},{threshold:.01});
  films.forEach(r=>{
@@ -54,7 +74,24 @@
  $('#duo-bonk').addEventListener('click',()=>duoBonk($('#duo-bonk')));$('.friend-toy').addEventListener('click',()=>duoBonk($('.friend-toy')));
  $('.footer-character').addEventListener('click',()=>react($('.footer-character'),footer,()=>{$('#footer-status').textContent=reduce.matches?'CONK noticed you!':'One more surprise from CONK!';footerScene?.nudge();burst($('.footer-character .reaction-burst'),footer)}));
  const module=()=>sceneModule??=import('./scene.js?v=scene-version');
- const load=()=>module().then(m=>m.initScene($('#renderer'),{reduce:reduce.matches})).then(s=>{scene=s;studio.classList.add('model-ready');$('#renderer').dataset.ready='true';schedule()}).catch(()=>{$('#interaction-hint').textContent='Tap for a little chaos';$('#renderer').style.pointerEvents='none';$('#renderer').removeAttribute('tabindex')});
- if('requestIdleCallback'in window)requestIdleCallback(load,{timeout:900});else setTimeout(load,450);
- const footerLoader=new IntersectionObserver(entries=>{if(!entries.some(e=>e.isIntersecting))return;footerLoader.disconnect();module().then(m=>m.initFooter($('#footer-renderer'),{reduce:reduce.matches})).then(s=>{footerScene=s;$('.footer-float').classList.add('footer-model-ready');$('#footer-renderer').dataset.ready='true';schedule()}).catch(()=>{$('#footer-renderer').dataset.ready='false'})},{rootMargin:'450px 0px'});footerLoader.observe(footer);
+ const load=()=>module().then(m=>m.initScene($('#renderer'),{reduce:reduce.matches,signal:assets.signal})).then(s=>{scene=s;studio.classList.add('model-ready');$('#renderer').dataset.ready='true';schedule()}).catch(()=>{$('#interaction-hint').textContent='Tap for a little chaos';$('#renderer').style.pointerEvents='none';$('#renderer').removeAttribute('tabindex')});
+ const ensureFooter=()=>footerPromise??=module().then(m=>m.initFooter($('#footer-renderer'),{reduce:reduce.matches,signal:assets.signal})).then(s=>{footerScene=s;$('.footer-float').classList.add('footer-model-ready');$('#footer-renderer').dataset.ready='true';schedule()}).catch(()=>{$('#footer-renderer').dataset.ready='false'});
+ function finishStartup(state){
+  if(bootEnded)return;bootEnded=true;
+  if(state==='fallback')assets.abort();
+  measure();pageParts.forEach(el=>el.inert=false);document.body.removeAttribute('aria-busy');
+  boot?.finish(state);films.forEach(syncFilm);
+ }
+ addEventListener('conk-startup-timeout',()=>finishStartup('fallback'),{once:true});
+ const images=[...document.images].map(image=>{image.loading='eager';return image.decode().catch(()=>{})});
+ const fonts=document.fonts.ready;
+ const tasks=[fonts,...images,load(),ensureFooter(),...films.map(loadFilm)];
+ for(const task of tasks)Promise.resolve(task).finally(()=>{
+  completed++;$('.startup-fill').style.transform=`scaleX(${completed/tasks.length})`;
+ }).catch(()=>{});
+ Promise.allSettled(tasks).then(()=>{
+  if(bootEnded)return;$('#startup-status').textContent='Ready!';
+  // Both WebGL scenes have painted before the loading screen opens.
+  requestAnimationFrame(()=>requestAnimationFrame(()=>finishStartup('ready')));
+ });
 })();
